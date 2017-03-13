@@ -21,12 +21,13 @@ namespace SchoolNew1
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             //Configuring primary keys, string lengths and requirements
-            modelBuilder.Entity<Assignment>().Property(a => a.Name).HasMaxLength(50);
-            modelBuilder.Entity<Course>().Property(c => c.Name).HasMaxLength(50);
-            modelBuilder.Entity<Teacher>().Property(t => t.FirstName).HasMaxLength(50);
-            modelBuilder.Entity<Teacher>().Property(t => t.LastName).HasMaxLength(50);
-            modelBuilder.Entity<Student>().Property(s => s.FirstName).HasMaxLength(50);
-            modelBuilder.Entity<Student>().Property(s => s.LastName).HasMaxLength(50);
+            modelBuilder.Entity<Assignment>().Property(a => a.Name).HasMaxLength(25).IsRequired();
+            modelBuilder.Entity<Assignment>().Property(a => a.Description).HasMaxLength(50).IsRequired();
+            modelBuilder.Entity<Course>().Property(c => c.Name).HasMaxLength(25);
+            modelBuilder.Entity<Teacher>().Property(t => t.FirstName).HasMaxLength(25);
+            modelBuilder.Entity<Teacher>().Property(t => t.LastName).HasMaxLength(25);
+            modelBuilder.Entity<Student>().Property(s => s.FirstName).HasMaxLength(25);
+            modelBuilder.Entity<Student>().Property(s => s.LastName).HasMaxLength(25);
         }
     }
 

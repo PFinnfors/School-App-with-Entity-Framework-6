@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SchoolNew1
 {
@@ -10,53 +8,113 @@ namespace SchoolNew1
     {
         static void Main(string[] args)
         {
+            //Disables initialization for SchoolContext
+            Database.SetInitializer(new NullDatabaseInitializer<SchoolContext>());
+
+            //Object for custom class with data handling functions
             ConsoleLogic CLogic = new ConsoleLogic();
 
-            Console.WriteLine("Welcome to the school database!\n");
+            //Intro
+            Console.WriteLine("Welcome to the school app!\n");
 
-            //
-            var query = CLogic.QueryCoursesExist();
-
-            //
-            if (!query)
-            {
-                Console.WriteLine("\nThere are no courses in the school database!\nA default will be created.\n");
-
-                CLogic.CreateCourse("Biology I");
-            }
-            //
-            else
+            //MAIN LOOP: for stepping back to main menu
+            bool mainLoop = true;
+            while (mainLoop)
             {
                 Console.WriteLine("Select from menu:\n"
-                    + "1) Get courses");
+                    + "\tC) Courses"
+                    + "\tP) People"
+                    + "\tQ) Quit");
 
-                char selection = Console.ReadKey(false).KeyChar;
+                //Gets user choice
+                char selection = Console.ReadKey(true).KeyChar;
+                char.ToUpper(selection);
 
+                //Decides whether to go to courses, people, or to quit app
                 switch (selection)
                 {
-                    case '1':
+                    #region BRANCH: COURSE
+                    case 'C':
                         {
-                            Console.WriteLine("");
+                            //Checks if courses exist in database
+                            bool exist = CLogic.QueryCoursesExist();
+
+                            //If they don't, tell user
+                            if(!exist)
+                            {
+                                Console.WriteLine("There are no courses yet. Do you want to create one?");
+                            }
+                            else
+                            {
+                                //QUERY: gets courses from database
+                                var coursesList = CLogic.QueryCourses();
+
+                                //DISPLAY: writes out name of all the courses, numbered by id
+                                CLogic.DisplayCourses(coursesList);
+
+                                Console.WriteLine("What do you want to do?"
+                                    + "A) Add course"
+                                    + "R) Remove course"
+                                    + "B) Back");
+
+                                //LOOP MENU
+                                bool courseMenu = true;
+                                while (courseMenu)
+                                {
+                                    //Takes menu choice and converts to uppercase
+                                    var menu = Console.ReadKey(true).KeyChar;
+                                    Char.ToUpper(menu);
+
+                                    //BRANCH: ...
+                                    switch(menu)
+                                    {
+                                        case 'A':
+                                            {
+                                                Console.WriteLine("Add new course:");
+                                                //CLogic.AddCourse();
+                                                break;
+                                            }
+                                        case 'R':
+                                            {
+                                                Console.WriteLine("What course do you want to remove (ID or NAME)?");
+                                                //CLogic.SearchCourse();
+                                                //CLogic.RemoveCourse();
+                                                break;
+                                            }
+                                        case 'B':
+                                            {
+                                                courseMenu = false;
+                                                break;
+                                            }
+                                    }
+
+                                    //INPUT: finds the course with a user-selected id
+                                    //var selectedCourse = CLogic.GetCourseById(coursesList);
+
+                                }
+                            }
+                            
                             break;
                         }
-                    case '2':
+                    #endregion BRANCH: COURSE
+                    #region BRANCH: PEOPLE
+                    case 'P':
                         {
-                            Console.WriteLine();
+                            //CLogic.asdadsd();
                             break;
                         }
-                    default:
+                    #endregion BRANCH: PEOPLE
+                    #region BRANCH: QUIT
+                    case 'Q':
                         {
+                            mainLoop = false;
                             break;
                         }
+                        #endregion BRANCH: QUIT
                 }
             }
-
-
-
-
+            
             Console.ReadKey();
         }
-
-        
     }
 }

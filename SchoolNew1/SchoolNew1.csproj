@@ -59,6 +59,10 @@
     <Compile Include="Migrations\201703130641492_Init.Designer.cs">
       <DependentUpon>201703130641492_Init.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201703131424137_AssignmentDescReq.cs" />
+    <Compile Include="Migrations\201703131424137_AssignmentDescReq.Designer.cs">
+      <DependentUpon>201703131424137_AssignmentDescReq.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="SchoolContext.cs" />
     <Compile Include="Program.cs" />
@@ -71,6 +75,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201703130641492_Init.resx">
       <DependentUpon>201703130641492_Init.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703131424137_AssignmentDescReq.resx">
+      <DependentUpon>201703131424137_AssignmentDescReq.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
