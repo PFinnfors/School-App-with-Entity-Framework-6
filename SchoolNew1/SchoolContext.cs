@@ -2,6 +2,7 @@ namespace SchoolNew1
 {
     using System.Collections.Generic;
     using System.Data.Entity;
+    using System.ComponentModel.DataAnnotations;
 
     public class SchoolContext : DbContext
     {
@@ -42,9 +43,9 @@ namespace SchoolNew1
         //Teacher last name
         public string LastName { get; set; }
 
-        //--FK----------------------------------------------------
+        //--NAV----------------------------------------------------
         //Teaching which courses
-        public ICollection<Course> Courses { get; set; }
+        public virtual ICollection<Course> Courses { get; set; }
     }
 
     public class Student
@@ -58,9 +59,9 @@ namespace SchoolNew1
         //Student last name
         public string LastName { get; set; }
 
-        //--FK----------------------------------------------------
+        //--NAV----------------------------------------------------
         //Signed up for what courses
-        public List<Course> Courses { get; set; }
+        public virtual ICollection<Course> Courses { get; set; }
     }
 
     public class Course
@@ -71,15 +72,15 @@ namespace SchoolNew1
         //Course name
         public string Name { get; set; }
 
-        //--FK----------------------------------------------------
-        //Assignments in this course
-        public List<Teacher> Teachers { get; set; }
+        //--NAV----------------------------------------------------
+        //Teachers in this course
+        public virtual ICollection<Teacher> Teachers { get; set; }
 
         //Students in this course
-        public List<Student> Students { get; set; }
+        public virtual ICollection<Student> Students { get; set; }
 
         //Assignments in this course
-        public List<Assignment> Assignments { get; set; }
+        public ICollection<Assignment> Assignments { get; set; }
     }
 
     public class Assignment
@@ -98,9 +99,9 @@ namespace SchoolNew1
         //Assignment description
         public string Description { get; set; }
 
-        //--FK----------------------------------------------------
+        //-NAV----------------------------------------------------
         //Part of what course
-        public int CourseId { get; set; }
-        public Course Course { get; set; }
+        public virtual int CourseId { get; set; }
+        public virtual Course Course { get; set; }
     }
 }
