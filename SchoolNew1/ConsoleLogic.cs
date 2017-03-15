@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 
+//CTRL + M + O is useful here
+
 namespace SchoolNew1
 {
     public class ConsoleLogic
@@ -26,6 +28,40 @@ namespace SchoolNew1
             }
         }
 
+        //Creates a course based on input name
+        public void AddTeacher(string firstName, string lastName)
+        {
+            var teacher = new Teacher()
+            {
+                FirstName = firstName,
+                LastName = lastName
+            };
+
+            using (var context = new SchoolContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                context.Teachers.Add(teacher);
+                context.SaveChanges();
+            }
+        }
+
+        //Creates a course based on input name
+        public void AddStudent(string firstName, string lastName)
+        {
+            var student = new Student()
+            {
+                FirstName = firstName,
+                LastName = lastName
+            };
+
+            using (var context = new SchoolContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                context.Students.Add(student);
+                context.SaveChanges();
+            }
+        }
+
         //Removes course based on id or name
         public void RemoveCourse(Course cRemove)
         {
@@ -41,7 +77,7 @@ namespace SchoolNew1
 
         #region DATABASE QUERIES
         
-        #region Basic Queries
+        #region Basic Content Queries
 
         //Queries all courses from the database
         public List<Course> QueryCourses()
@@ -100,7 +136,9 @@ namespace SchoolNew1
             return qStudents;
         }
 
-        #endregion Basic Queries
+        #endregion Basic Content Queries
+
+        #region Existence Queries
 
         //Queries the database to see if courses exist
         public bool QueryCoursesExist()
@@ -117,6 +155,38 @@ namespace SchoolNew1
             return courseExists;
         }
 
+        //Queries the database to see if teachers exist
+        public bool QueryTeachersExist()
+        {
+            bool teacherExists;
+
+            using (var context = new SchoolContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                var cnt = context.Teachers.Count();
+                teacherExists = (cnt > 0) ? true : false;
+            }
+
+            return teacherExists;
+        }
+
+        //Queries the database to see if students exist
+        public bool QueryStudentsExist()
+        {
+            bool studentExists;
+
+            using (var context = new SchoolContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                var cnt = context.Students.Count();
+                studentExists = (cnt > 0) ? true : false;
+            }
+
+            return studentExists;
+        }
+
+        #endregion Existence Queries
+
         public Course QuerySearchCourse(string search)
         {
             Course searchedC = new Course();
@@ -129,14 +199,15 @@ namespace SchoolNew1
 
             return searchedC;
         }
-        
+
         #endregion DATABASE QUERIES
-        
 
 
         //GENERAL DATA
 
-        #region DISPLAY INFORMATION
+        #region GENERAL COMMANDS
+
+        #region Displays
 
         //Writes out name of all the courses, numbered by id
         public void DisplayCourses(List<Course> dCourses)
@@ -162,19 +233,64 @@ namespace SchoolNew1
                     }
                 }
             }
-
-            //Console.WriteLine("ID # | Name");
-            //foreach (Course c in courses)
-            //{
-            //    Console.WriteLine($"{c.CourseId}) {c.Name}");
-            //}
         }
 
-        #endregion DISPLAY INFORMATION
+        //Writes out name of all the courses, numbered by id
+        public void DisplayTeachers(List<Teacher> dTeachers)
+        {
+            //
+            int cnt = dTeachers.Count;
 
-        #region RETRIEVE INFORMATION
+            //For all courses
+            for (int i = 0; i < cnt; i++)
+            {
+                //Display course [i]
+                Console.WriteLine($"{dTeachers[i].TeacherId}) {dTeachers[i].FirstName} {dTeachers[i].LastName}");
 
-        //Finds match in courses based on input id
+                //If there are assignments in course [i]
+                if (dTeachers[i].Courses != null)
+                {
+                    var tCourses = dTeachers[i].Courses.ToList();
+
+                    //Display assignments of [i]
+                    foreach (Course c in tCourses)
+                    {
+                        Console.WriteLine($"Teaching:\t{c.CourseId}) {c.Name}");
+                    }
+                }
+            }
+        }
+
+        #endregion Displays
+
+        //Takes input char and blocks until a parameter value is matched
+        public char InputUntilMatched(char input, params char[] matches)
+        {
+            //Initialize loop
+            var loopOn = true;
+            while (loopOn)
+            {
+                //Takes input character and makes it uppercase
+                input = Console.ReadKey(true).KeyChar;
+                input = Char.ToUpper(input);
+
+                //For each char included in params
+                for (int i = 0; i < matches.Count(); i++)
+                {
+                    if (matches[i] == input)
+                    {
+                        loopOn = false;
+                    }
+                }
+            }
+            return input;
+        }
+
+        #endregion GENERAL COMMANDS
+
+        #region GENERAL QUERIES
+
+        //Finds match in courses based on an embedded input id prompt
         public Course GetCourseById(List<Course> courses)
         {
             char idNum = '0';
@@ -190,8 +306,8 @@ namespace SchoolNew1
             var courseMatch = courses.FirstOrDefault(c => c.CourseId == Convert.ToInt16(idNum));
             return courseMatch;
         }
-
-        #endregion RETRIEVE INFORMATION
+        
+        #endregion GENERAL QUERIES
 
 
     }

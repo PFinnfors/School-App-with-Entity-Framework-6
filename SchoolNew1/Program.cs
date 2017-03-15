@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Data.Entity;
 using System.Collections.Generic;
-using System.Linq;
+
+//CTRL + M + O is useful here
 
 namespace SchoolNew1
 {
@@ -26,21 +27,23 @@ namespace SchoolNew1
             bool mainLoop = true;
             while (mainLoop)
             {
-                #region MAIN MENU: USER CHOICE
+                #region MAIN MENU: PROMPT & CHOICE
+                
+                //Display menu
                 Console.WriteLine("Select from menu:\n"
                     + "\tC) Courses"
                     + "\tP) People"
                     + "\tQ) Quit");
 
-                //Gets user choice
+                //Get user choice
                 char selection = Console.ReadKey(true).KeyChar;
                 selection = char.ToUpper(selection);
 
-                #endregion MAIN MENU: USER CHOICE
+                #endregion MAIN MENU: PROMPT & CHOICE
 
                 #region MAIN MENU: BRANCH
 
-                //Decides whether to go to courses, people, or to quit app
+                //Decides whether to go to Courses, People, or to Quit app
                 switch (selection)
                 {
                     #region BRANCH: COURSE
@@ -53,9 +56,9 @@ namespace SchoolNew1
                             if (!exist)
                             {
                                 #region NO COURSES FOUND. CREATE?
-                                Console.WriteLine("There are no courses yet. Do you want to create one (Y/N)?");
+                                Console.WriteLine("There are no courses yet. Do you want to add one(Y/N)?");
 
-                                char answer = 'U';
+                                char answer = '0';
                                 while (answer != 'Y' & answer != 'N')
                                 {
                                     answer = Console.ReadKey(true).KeyChar;
@@ -92,63 +95,47 @@ namespace SchoolNew1
                                 CLogic.DisplayCourses(coursesList);
 
                                 Console.WriteLine("What do you want to do?"
-                                    + "A) Add course"
-                                    + "R) Remove course"
-                                    + "B) Back");
+                                    + "\nA) Add course"
+                                    + "\nR) Remove course"
+                                    + "\nB) Back");
 
                                 #endregion COURSE: QUERY-DISPLAY
 
                                 #region COURSE: CHOICE
 
                                 //LOOP MENU
-                                bool courseMenu = true;
-                                char menu = 'U';
+                                char choice = '0';
 
-                                while (courseMenu)
-                                {
-                                    //Takes menu choice and then converts it to uppercase
-                                    menu = Console.ReadKey(true).KeyChar;
-                                    menu = Char.ToUpper(menu);
-
-                                    //If answer is valid, break loop
-                                    if (menu == 'A' || menu == 'R' || menu == 'B')
-                                    {
-                                        courseMenu = false;
-                                    }
-                                }
-
+                                choice = CLogic.InputUntilMatched(choice, 'A', 'R', 'B');
+                                
                                 #endregion COURSE: CHOICE
 
                                 #region COURSE: BRANCH
 
                                 //BRANCH: ...
-                                switch (menu)
+                                switch (choice)
                                 {
                                     #region ADD COURSE
+
                                     case 'A':
                                         {
-                                            //Break out of loop after switch
-                                            courseMenu = false;
-
                                             Console.WriteLine("Add new course:");
-
-                                            string name = Console.ReadLine();
-
-                                            CLogic.AddCourse(name);
+                                            
+                                            CLogic.AddCourse();
 
                                             /*----User might be asked if they want to create an assignment,
                                             add a student or teacher */
 
                                             break;
                                         }
+
                                     #endregion ADD COURSE
 
                                     #region REMOVE COURSE
 
                                     case 'R':
                                         {
-                                            //Break out of loop after switch
-                                            courseMenu = false;
+                                            
 
                                             Console.WriteLine("Which course do you want to remove (ID / NAME)?");
 
@@ -159,6 +146,8 @@ namespace SchoolNew1
                                             CLogic.RemoveCourse(searchedCourse);
 
                                             break;
+
+                                            
                                         }
 
                                     #endregion REMOVE COURSE
@@ -167,15 +156,13 @@ namespace SchoolNew1
 
                                     case 'B':
                                         {
-                                            courseMenu = false;
-                                            break;
+                                            break;   
                                         }
 
                                         #endregion BACK
                                 }
 
                                 #endregion COURSE: BRANCH
-
                             }
                             break;
                         }
@@ -183,32 +170,110 @@ namespace SchoolNew1
                     #endregion BRANCH: COURSE
 
                     #region BRANCH: PEOPLE
+
                     case 'P':
                         {
+                            #region PEOPLE: QUERY-DISPLAY
+
                             Console.WriteLine("T) Teachers"
-                                + "S) Students");
+                                + "\nS) Students");
 
-                            bool peopleMenu = true;
-                            char menu = 'U';
+                            CLogic.QueryTeachers();
 
-                            while (peopleMenu)
-                            {
-                                //Takes menu choice and then converts it to uppercase
-                                menu = Console.ReadKey(true).KeyChar;
-                                menu = Char.ToUpper(menu);
+                            #endregion PEOPLE: QUERY-DISPLAY
 
-                                //If answer is valid, break loop
-                                if (menu == 'T' || menu == 'S')
-                                {
-                                    peopleMenu = false;
-                                }
-                            }
+                            #region PEOPLE: CHOICE
+
+                            //Inputs until user gives either T or S
+                            char menuP = '0';
+                            menuP = CLogic.InputUntilMatched(menuP, 'T', 'S');
+
+                            #endregion PEOPLE: CHOICE
+
+                            #region PEOPLE: BRANCH
 
                             //Branch
+                            switch (menuP)
+                            {
+                                case 'T':
+                                    {
+                                        //Checks if teachers exist in database ...
+                                        bool exist = CLogic.QueryTeachersExist();
+
+                                        //... if they don't, tell user
+                                        if (!exist)
+                                        {
+                                            #region NO TEACHERS FOUND. CREATE?
+                                            Console.WriteLine("There are no teachers yet. Do you want to add one(Y/N)?");
+
+                                            char choice = '0';
+                                            CLogic.InputUntilMatched(choice, 'Y', 'N');
+
+                                            CLogic.AddTeacher();
+
+                                            #endregion NO TEACHERS FOUND. CREATE?
+                                        }
+                                        else
+                                        {
+                                            #region TEACHER: QUERY-DISPLAY
+                                            
+                                            //QUERY: gets courses from database
+                                            List<Teacher> teachersList = new List<Teacher>(CLogic.QueryTeachers());
+
+                                            //DISPLAY: writes out name of all the courses, numbered by id
+                                            CLogic.DisplayTeachers(teachersList);
+
+                                            Console.WriteLine("What do you want to do?"
+                                                + "\nA) Add course"
+                                                + "\nR) Remove course"
+                                                + "\nB) Back");
+
+                                            #endregion TEACHER: QUERY-DISPLAY
+
+                                            #region TEACHER: CHOICE
+                                            
+                                            char menuC = '0';
+
+                                            menuC = CLogic.InputUntilMatched(menuC, 'A', 'R', 'B');
+
+                                            #endregion TEACHER: CHOICE
+
+                                            #region TEACHER: BRANCH
+
+                                            #endregion TEACHER: BRANCH
+                                        }
+                                        break;
+                                    }
+                                case 'S':
+                                    {
+                                        //Checks if students exist in database ...
+                                        bool exist = CLogic.QueryStudentsExist();
+
+                                        if (!exist)
+                                        {
+                                            #region NO STUDENTS FOUND. CREATE?
+                                            Console.WriteLine("There are no students yet. Do you want to add one(Y/N)?");
+
+                                            char choice = 'U';
+
+                                            CLogic.InputUntilMatched(choice, 'Y', 'N');
+
+                                            CLogic.AddStudent();
+
+                                            #endregion NO TEACHERS FOUND. CREATE?
+                                        }
+                                        break;
+                                    }
+
+                            }
+                            
                             //Not found / create option to be implemented for both students and teachers etc...
+
+                            #endregion PEOPLE: BRANCH
 
                             break;
                         }
+
                     #endregion BRANCH: PEOPLE
 
                     #region BRANCH: QUIT
