@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 
-//CTRL + M + O is useful here
+/* IN VISUAL STUDIO
+Collapse regions: CTRL + M + O
+Expand regions: CTRL + M + L
+*/
 
 namespace SchoolNew1
 {
@@ -72,11 +75,33 @@ namespace SchoolNew1
                 context.SaveChanges();
             }
         }
-        
+
+        //Removes course based on id or name
+        public void RemoveTeacher(Teacher tRemove)
+        {
+            using (var context = new SchoolContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                context.Teachers.Remove(tRemove);
+                context.SaveChanges();
+            }
+        }
+
+        //Removes course based on id or name
+        public void RemoveStudent(Student sRemove)
+        {
+            using (var context = new SchoolContext())
+            {
+                context.Database.Log = Console.WriteLine;
+                context.Students.Remove(sRemove);
+                context.SaveChanges();
+            }
+        }
+
         #endregion DATABASE COMMANDS
 
         #region DATABASE QUERIES
-        
+
         #region Basic Content Queries
 
         //Queries all courses from the database
@@ -86,9 +111,8 @@ namespace SchoolNew1
 
             using (var context = new SchoolContext())
             {
-                context.Database.Log = Console.WriteLine;
+                //context.Database.Log = Console.WriteLine;
                 qCourses = context.Courses.ToList();
-                //cnt = context.Courses.ToList().Count;
             }
 
             return qCourses;
@@ -101,7 +125,7 @@ namespace SchoolNew1
 
             using (var context = new SchoolContext())
             {
-                context.Database.Log = Console.WriteLine;
+                //context.Database.Log = Console.WriteLine;
                 qAssigns = context.Assignments.ToList();
             }
 
@@ -115,7 +139,7 @@ namespace SchoolNew1
 
             using (var context = new SchoolContext())
             {
-                context.Database.Log = Console.WriteLine;
+                //context.Database.Log = Console.WriteLine;
                 qTeachers = context.Teachers.ToList();
             }
 
@@ -129,7 +153,7 @@ namespace SchoolNew1
 
             using (var context = new SchoolContext())
             {
-                context.Database.Log = Console.WriteLine;
+                //context.Database.Log = Console.WriteLine;
                 qStudents = context.Students.ToList();
             }
 
@@ -147,7 +171,7 @@ namespace SchoolNew1
 
             using (var context = new SchoolContext())
             {
-                context.Database.Log = Console.WriteLine;
+                //context.Database.Log = Console.WriteLine;
                 var cnt = context.Courses.Count();
                 courseExists = (cnt > 0) ? true : false;
             }
@@ -162,7 +186,7 @@ namespace SchoolNew1
 
             using (var context = new SchoolContext())
             {
-                context.Database.Log = Console.WriteLine;
+                //context.Database.Log = Console.WriteLine;
                 var cnt = context.Teachers.Count();
                 teacherExists = (cnt > 0) ? true : false;
             }
@@ -177,7 +201,7 @@ namespace SchoolNew1
 
             using (var context = new SchoolContext())
             {
-                context.Database.Log = Console.WriteLine;
+                //context.Database.Log = Console.WriteLine;
                 var cnt = context.Students.Count();
                 studentExists = (cnt > 0) ? true : false;
             }
@@ -193,15 +217,45 @@ namespace SchoolNew1
 
             using (var context = new SchoolContext())
             {
-                var qCourse = context.Courses.FirstOrDefault(c => c.Name.ToUpper() == search.ToUpper());
+                var qCourse = context.Courses.
+                    FirstOrDefault(c => c.Name.ToUpper().Contains(search.ToUpper()));
                 searchedC = qCourse;
             }
 
             return searchedC;
         }
 
-        #endregion DATABASE QUERIES
+        public Teacher QuerySearchTeacher(string search)
+        {
+            Teacher searchedT = new Teacher();
 
+            using (var context = new SchoolContext())
+            {
+                var qTeacher = context.Teachers.
+                    FirstOrDefault(t => string.Concat(t.FirstName, " ", t.LastName).ToUpper()
+                    .Contains(search.ToUpper()));
+                searchedT = qTeacher;
+            }
+
+            return searchedT;
+        }
+
+        public Student QuerySearchStudent(string search)
+        {
+            Student searchedS = new Student();
+
+            using (var context = new SchoolContext())
+            {
+                var qStudent = context.Students.
+                    FirstOrDefault(s => string.Concat(s.FirstName, "", s.LastName).ToUpper()
+                    .Contains(search.ToUpper()));
+                searchedS = qStudent;
+            }
+
+            return searchedS;
+        }
+
+        #endregion DATABASE QUERIES
 
         //GENERAL DATA
 
@@ -214,6 +268,8 @@ namespace SchoolNew1
         {
             //
             int cnt = dCourses.Count;
+
+            WriteColor("DarkRed", "#  Course Name\n");
 
             //For all courses
             for (int i = 0; i < cnt; i++)
@@ -233,6 +289,7 @@ namespace SchoolNew1
                     }
                 }
             }
+            Console.Write("\n");
         }
 
         //Writes out name of all the courses, numbered by id
@@ -261,13 +318,41 @@ namespace SchoolNew1
             }
         }
 
+        //Writes out name of all the courses, numbered by id
+        public void DisplayStudents(List<Student> dStudents)
+        {
+            //
+            int cnt = dStudents.Count;
+
+            //For all courses
+            for (int i = 0; i < cnt; i++)
+            {
+                //Display course [i]
+                Console.WriteLine($"{dStudents[i].StudentId}) {dStudents[i].FirstName} {dStudents[i].LastName}");
+
+                //If there are assignments in course [i]
+                if (dStudents[i].Courses != null)
+                {
+                    var tStudents = dStudents[i].Courses.ToList();
+
+                    //Display assignments of [i]
+                    foreach (Course c in tStudents)
+                    {
+                        Console.WriteLine($"Taking:\t{c.CourseId}) {c.Name}");
+                    }
+                }
+            }
+        }
+
         #endregion Displays
 
         //Takes input char and blocks until a parameter value is matched
-        public char InputUntilMatched(char input, params char[] matches)
+        public char InputUntilMatched(params char[] matches)
         {
-            //Initialize loop
+            //Initialize loop and input
             var loopOn = true;
+            char input = '0';
+
             while (loopOn)
             {
                 //Takes input character and makes it uppercase
@@ -284,6 +369,15 @@ namespace SchoolNew1
                 }
             }
             return input;
+        }
+
+        //Customized Console.Write to pass text color as an included parameter
+        public void WriteColor(string color, string text)
+        {
+            Type type = typeof(ConsoleColor);
+            Console.ForegroundColor = (ConsoleColor)Enum.Parse(type, color);
+            Console.Write(text);
+            Console.ResetColor();
         }
 
         #endregion GENERAL COMMANDS

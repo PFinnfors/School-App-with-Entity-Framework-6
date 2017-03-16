@@ -1,5 +1,6 @@
 namespace SchoolNew1
 {
+    using System;
     using System.Collections.Generic;
     using System.Data.Entity;
     using System.ComponentModel.DataAnnotations;
