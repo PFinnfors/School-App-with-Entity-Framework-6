@@ -63,14 +63,6 @@
     <Compile Include="Migrations\201703131424137_AssignmentDescReq.Designer.cs">
       <DependentUpon>201703131424137_AssignmentDescReq.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201703140906396_LazyLoading.cs" />
-    <Compile Include="Migrations\201703140906396_LazyLoading.Designer.cs">
-      <DependentUpon>201703140906396_LazyLoading.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201703141032166_LazyLoading1.cs" />
-    <Compile Include="Migrations\201703141032166_LazyLoading1.Designer.cs">
-      <DependentUpon>201703141032166_LazyLoading1.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="SchoolContext.cs" />
     <Compile Include="Program.cs" />
@@ -86,12 +78,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201703131424137_AssignmentDescReq.resx">
       <DependentUpon>201703131424137_AssignmentDescReq.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201703140906396_LazyLoading.resx">
-      <DependentUpon>201703140906396_LazyLoading.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201703141032166_LazyLoading1.resx">
-      <DependentUpon>201703141032166_LazyLoading1.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

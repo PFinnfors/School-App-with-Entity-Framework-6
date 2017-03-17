@@ -15,6 +15,8 @@ namespace SchoolNew1
 
         #region DATABASE COMMANDS
 
+        #region Database: Add
+
         //Creates a course based on input name
         public void AddCourse(string name)
         {
@@ -25,7 +27,8 @@ namespace SchoolNew1
 
             using (var context = new SchoolContext())
             {
-                context.Database.Log = Console.WriteLine;
+                //context.Database.Log = Console.WriteLine;
+
                 context.Courses.Add(course);
                 context.SaveChanges();
             }
@@ -42,7 +45,8 @@ namespace SchoolNew1
 
             using (var context = new SchoolContext())
             {
-                context.Database.Log = Console.WriteLine;
+                //context.Database.Log = Console.WriteLine;
+
                 context.Teachers.Add(teacher);
                 context.SaveChanges();
             }
@@ -59,19 +63,28 @@ namespace SchoolNew1
 
             using (var context = new SchoolContext())
             {
-                context.Database.Log = Console.WriteLine;
+                //context.Database.Log = Console.WriteLine;
+
                 context.Students.Add(student);
                 context.SaveChanges();
             }
         }
+
+        #endregion Database: Add
+
+        #region Database: Remove
 
         //Removes course based on id or name
         public void RemoveCourse(Course cRemove)
         {
             using (var context = new SchoolContext())
             {
-                context.Database.Log = Console.WriteLine;
+                //context.Database.Log = Console.WriteLine;
+
+                //Attaches the course to the context and then removes it
+                context.Courses.Attach(cRemove);
                 context.Courses.Remove(cRemove);
+
                 context.SaveChanges();
             }
         }
@@ -81,8 +94,12 @@ namespace SchoolNew1
         {
             using (var context = new SchoolContext())
             {
-                context.Database.Log = Console.WriteLine;
+                //context.Database.Log = Console.WriteLine;
+
+                //Attaches the course to the context and then removes it
+                context.Teachers.Attach(tRemove);
                 context.Teachers.Remove(tRemove);
+
                 context.SaveChanges();
             }
         }
@@ -92,11 +109,16 @@ namespace SchoolNew1
         {
             using (var context = new SchoolContext())
             {
-                context.Database.Log = Console.WriteLine;
+                //context.Database.Log = Console.WriteLine;
+
+                context.Students.Attach(sRemove);
                 context.Students.Remove(sRemove);
+
                 context.SaveChanges();
             }
         }
+
+        #endregion Database: Remove
 
         #endregion DATABASE COMMANDS
 
@@ -179,6 +201,21 @@ namespace SchoolNew1
             return courseExists;
         }
 
+        //Queries the database to see if assignments exist
+        public bool QueryAssignmentsExist()
+        {
+            bool assignExists;
+
+            using (var context = new SchoolContext())
+            {
+                //context.Database.Log = Console.WriteLine;
+                var cnt = context.Assignments.Count();
+                assignExists = (cnt > 0) ? true : false;
+            }
+
+            return assignExists;
+        }
+
         //Queries the database to see if teachers exist
         public bool QueryTeachersExist()
         {
@@ -211,30 +248,69 @@ namespace SchoolNew1
 
         #endregion Existence Queries
 
+        #region Specific search queries
+
         public Course QuerySearchCourse(string search)
         {
-            Course searchedC = new Course();
+            var searchedC = new Course();
 
-            using (var context = new SchoolContext())
+            //Attempts to parse search string to int ...
+            int res;
+            bool success = int.TryParse(search, out res);
+
+            //... if it is parsable, do an id search with the resulting int
+            if (success)
             {
-                var qCourse = context.Courses.
-                    FirstOrDefault(c => c.Name.ToUpper().Contains(search.ToUpper()));
-                searchedC = qCourse;
-            }
+                using (var context = new SchoolContext())
+                {
+                    searchedC =
+                        context.Courses.
+                        FirstOrDefault(c => c.CourseId == res);
+                }
 
-            return searchedC;
+                return searchedC;
+            }
+            else //do a name search instead
+            {
+                using (var context = new SchoolContext())
+                {
+                    searchedC = context.Courses.
+                        FirstOrDefault(c => c.Name.ToUpper().Contains(search.ToUpper()));
+                }
+
+                return searchedC;
+            }
         }
 
         public Teacher QuerySearchTeacher(string search)
         {
             Teacher searchedT = new Teacher();
 
-            using (var context = new SchoolContext())
+            //
+            int res;
+            bool success = int.TryParse(search, out res);
+
+            if (success)
             {
-                var qTeacher = context.Teachers.
-                    FirstOrDefault(t => string.Concat(t.FirstName, " ", t.LastName).ToUpper()
+                using (var context = new SchoolContext())
+                {
+                    var qiTeacher =
+                        context.Teachers.
+                        FirstOrDefault(t => t.TeacherId.ToString() == search);
+
+                    searchedT = qiTeacher;
+                }
+            }
+            else
+            {
+                using (var context = new SchoolContext())
+                {
+                    var qsTeacher = context.Teachers.
+                        FirstOrDefault(t => string.Concat(t.FirstName, "", t.LastName).ToUpper()
                     .Contains(search.ToUpper()));
-                searchedT = qTeacher;
+
+                    searchedT = qsTeacher;
+                }
             }
 
             return searchedT;
@@ -244,16 +320,36 @@ namespace SchoolNew1
         {
             Student searchedS = new Student();
 
-            using (var context = new SchoolContext())
+            //
+            int res;
+            bool success = int.TryParse(search, out res);
+
+            if (success)
             {
-                var qStudent = context.Students.
-                    FirstOrDefault(s => string.Concat(s.FirstName, "", s.LastName).ToUpper()
-                    .Contains(search.ToUpper()));
-                searchedS = qStudent;
+                using (var context = new SchoolContext())
+                {
+                    var qiStudent =
+                        context.Students.
+                        FirstOrDefault(s => s.StudentId.ToString() == search);
+
+                    searchedS = qiStudent;
+                }
+            }
+            else
+            {
+                using (var context = new SchoolContext())
+                {
+                    var qStudent = context.Students.
+                        FirstOrDefault(s => string.Concat(s.FirstName, "", s.LastName).ToUpper()
+                        .Contains(search.ToUpper()));
+                    searchedS = qStudent;
+                }
             }
 
             return searchedS;
         }
+
+        #endregion Specific search queries
 
         #endregion DATABASE QUERIES
 
@@ -261,34 +357,56 @@ namespace SchoolNew1
 
         #region GENERAL COMMANDS
 
-        #region Displays
+        #region DISPLAYS
 
         //Writes out name of all the courses, numbered by id
-        public void DisplayCourses(List<Course> dCourses)
+        public void DisplayCourses(List<Course> dCourses, List<Assignment> dAssigns = null)
         {
-            //
+            //Gets count of courses
             int cnt = dCourses.Count;
 
+            //Displays reference row for courses
             WriteColor("DarkRed", "#  Course Name\n");
 
             //For all courses
             for (int i = 0; i < cnt; i++)
             {
-                //Display course [i]
+                //Display course[i of cnt]
                 Console.WriteLine($"{dCourses[i].CourseId}) {dCourses[i].Name}");
 
-                //If there are assignments in course [i]
-                if (dCourses[i].Assignments != null)
+                //If there are assignments in course[i of cnt]
+                if (dAssigns != null)
                 {
-                    var cAssigns = dCourses[i].Assignments.ToList();
+                    //Displays reference row for assignments
+                    Console.Write("\tAssignments ");
+                    WriteColor("DarkRed", "Name: Description\n");
 
-                    //Display assignments of [i]
-                    foreach (Assignment a in cAssigns)
+                    //Displays all assignments with a foreign key course id matching the current course's id
+                    foreach (Assignment a in dAssigns.Where(a => a.CourseId == dCourses[i].CourseId))
                     {
-                        Console.WriteLine($"\t{a.AssignmentId}) {a.Name}\n\tDescription: {a.Description}");
+                        Console.WriteLine($"\t{a.Name}: {a.Description}");
                     }
                 }
             }
+
+            Console.Write("\n");
+        }
+
+        public void DisplayAssignments(List<Assignment> dAssignments)
+        {
+            //
+            int cnt = dAssignments.Count;
+
+            WriteColor("DarkRed", "#  Assignment Name | Description\n");
+
+            //For all assignments
+            for (int i = 0; i < cnt; i++)
+            {
+                //Display course [i]
+                Console.WriteLine($"{dAssignments[i].AssignmentId}) {dAssignments[i].Name}"
+                    + $"\n\t{dAssignments[i].Description}");
+            }
+
             Console.Write("\n");
         }
 
@@ -316,6 +434,8 @@ namespace SchoolNew1
                     }
                 }
             }
+
+            Console.Write("\n");
         }
 
         //Writes out name of all the courses, numbered by id
@@ -342,9 +462,11 @@ namespace SchoolNew1
                     }
                 }
             }
+
+            Console.Write("\n");
         }
 
-        #endregion Displays
+        #endregion DISPLAYS
 
         //Takes input char and blocks until a parameter value is matched
         public char InputUntilMatched(params char[] matches)
@@ -400,7 +522,7 @@ namespace SchoolNew1
             var courseMatch = courses.FirstOrDefault(c => c.CourseId == Convert.ToInt16(idNum));
             return courseMatch;
         }
-        
+
         #endregion GENERAL QUERIES
 
 

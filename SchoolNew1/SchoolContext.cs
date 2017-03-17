@@ -14,7 +14,7 @@ namespace SchoolNew1
         }
 
         //
-        public virtual DbSet<Assignment> Assignments { get; set; }
+        public DbSet<Assignment> Assignments { get; set; }
         public virtual DbSet<Course> Courses { get; set; }
         public virtual DbSet<Teacher> Teachers { get; set; }
         public virtual DbSet<Student> Students { get; set; }
@@ -102,7 +102,7 @@ namespace SchoolNew1
 
         //-NAV----------------------------------------------------
         //Part of what course
-        public virtual int CourseId { get; set; }
-        public virtual Course Course { get; set; }
+        public int CourseId { get; set; }
+        public Course Course { get; set; }
     }
 }
