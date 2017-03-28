@@ -63,8 +63,11 @@ namespace SchoolNew1
         //--NAV----------------------------------------------------
         //Signed up for what courses
         public virtual ICollection<Course> Courses { get; set; }
-    }
 
+        //Have what assignments
+        public virtual ICollection<Assignment> Assignments { get; set; }
+    }
+    
     public class Course
     {
         //Primary key
@@ -81,7 +84,10 @@ namespace SchoolNew1
         public virtual ICollection<Student> Students { get; set; }
 
         //Assignments in this course
-        public ICollection<Assignment> Assignments { get; set; }
+        public virtual ICollection<int> AssignmentsId { get; set; }
+
+        //Assignments in this course
+        public virtual ICollection<Assignment> Assignments { get; set; }
     }
 
     public class Assignment
@@ -102,7 +108,10 @@ namespace SchoolNew1
 
         //-NAV----------------------------------------------------
         //Part of what course
-        public int CourseId { get; set; }
-        public Course Course { get; set; }
+        public virtual int CourseId { get; set; }
+        public virtual Course Course { get; set; }
+
+        //Assigned to which students
+        public virtual ICollection<Student> Students { get; set; }
     }
 }

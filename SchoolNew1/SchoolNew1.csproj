@@ -63,6 +63,14 @@
     <Compile Include="Migrations\201703131424137_AssignmentDescReq.Designer.cs">
       <DependentUpon>201703131424137_AssignmentDescReq.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201703191209010_AssignmentStudentManyRelAdded.cs" />
+    <Compile Include="Migrations\201703191209010_AssignmentStudentManyRelAdded.Designer.cs">
+      <DependentUpon>201703191209010_AssignmentStudentManyRelAdded.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201703280756416_AddedAssignmentsID.cs" />
+    <Compile Include="Migrations\201703280756416_AddedAssignmentsID.Designer.cs">
+      <DependentUpon>201703280756416_AddedAssignmentsID.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="SchoolContext.cs" />
     <Compile Include="Program.cs" />
@@ -78,6 +86,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201703131424137_AssignmentDescReq.resx">
       <DependentUpon>201703131424137_AssignmentDescReq.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703191209010_AssignmentStudentManyRelAdded.resx">
+      <DependentUpon>201703191209010_AssignmentStudentManyRelAdded.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703280756416_AddedAssignmentsID.resx">
+      <DependentUpon>201703280756416_AddedAssignmentsID.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

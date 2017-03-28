@@ -37,31 +37,32 @@ namespace SchoolNew1
                 Console.WriteLine("Select from menu:");
                 CLogic.WriteColor("Green", "\tC) Courses"
                     + "\tP) People"
-                    + "\tQ) Quit\n\n");
+                    + "\tQ) Quit\n");
 
                 //Get user choice
                 char select = CLogic.InputUntilMatched('C', 'P', 'Q');
 
                 #endregion MAIN MENU: PROMPT & CHOICE
 
-                #region MAIN MENU: BRANCHES
-
                 //Decides whether to go to Courses, People, or to Quit app
                 switch (select)
                 {
                     case 'C':
                         {
-                            //Checks if courses don't exist in the database ...
-                            if (!(CLogic.QueryCoursesExist()))
-                            {
-                                #region NO COURSES FOUND. CREATE?
+                            //QUERY: gets courses from database
+                            List<Course> coursesList = new List<Course>(CLogic.QueryCourses());
 
-                                Console.WriteLine("There are no courses available. Do you want to add one (Y/N)?");
+                            //
+                            if (coursesList.Count < 1)
+                            {
+                                #region COURSES: NOT FOUND
+
+                                Console.WriteLine("\nThere are no courses available. Do you want to add one (Y/N)?");
                                 char choice = CLogic.InputUntilMatched('Y', 'N');
 
-                                #endregion NO COURSES FOUND. CREATE?
+                                #endregion COURSES: NOT FOUND
 
-                                #region COURSE CREATE: SWITCH
+                                #region COURSES: ADD FIRST
 
                                 switch (choice)
                                 {
@@ -75,56 +76,7 @@ namespace SchoolNew1
 
                                             //Adds new course
                                             CLogic.AddCourse(newCourse);
-
-                                            #region Assignments?
-
-                                            Console.WriteLine("\nDo you want to give it assignments (Y/N)?\n");
-
-                                            //Takes user choice of giving assignments to the created course
-                                            char giveAssignments = CLogic.InputUntilMatched('Y', 'N');
-
-                                            switch (giveAssignments)
-                                            {
-                                                case 'Y':
-                                                    {
-                                                        #region Give assignments
-
-                                                        //bool assignsExist;
-                                                        //do {
-                                                        //    //Checks if assignments exist in the database
-                                                        //    assignsExist = CLogic.QueryAssignmentsExist();
-                                                        //    if (assignsExist)
-                                                        //    {
-                                                        //        //Gets list of assignments from database
-                                                        //        var assignments = CLogic.QueryAssignments();
-
-                                                        //        //Displays assignments
-                                                        //        CLogic.DisplayAssignments(assignments);
-
-                                                        //        using (var context = new SchoolContext())
-                                                        //        {
-                                                        //            //context.Courses.
-                                                        //        }
-                                                        //    }
-                                                        //    else //Assignments don't exist, user has to create them
-                                                        //    {
-
-                                                        //    }
-
-                                                        //} while (assignsExist);
-
-                                                        #endregion Give assignments
-
-                                                        break;
-                                                    }
-                                                case 'N':
-                                                    {
-                                                        break;
-                                                    }
-                                            }
-
-                                            #endregion Assignments?
-
+                                            
                                             break;
 
                                             #endregion Add a new course
@@ -135,20 +87,18 @@ namespace SchoolNew1
                                         }
                                 }
 
-                                #endregion COURSE CREATE: SWITCH
+                                #endregion COURSES: ADD FIRST
                             }
-                            else //... if they do
+                            else
                             {
-                                #region COURSE: QUERY & DISPLAY
-
-                                //QUERY: gets courses from database
-                                List<Course> coursesList = new List<Course>(CLogic.QueryCourses());
-
-                                //QUERY: gets assignments from database
-                                List<Assignment> assignmentsList = new List<Assignment>(CLogic.QueryAssignments());
-
+                                #region COURSES: DISPLAY
+                                
                                 //DISPLAY: writes out name of all the courses, numbered by id
-                                CLogic.DisplayCourses(coursesList, assignmentsList);
+                                CLogic.DisplayCourses(coursesList);
+
+                                #endregion COURSES: DISPLAY
+
+                                #region COURSES: CHOICES
 
                                 Console.WriteLine("What do you want to do?");
                                 CLogic.WriteColor("Green", "A) Add course"
@@ -156,18 +106,14 @@ namespace SchoolNew1
                                     + "\nS) Assignments"
                                     + "\nB) Back\n\n");
 
-                                #endregion COURSE: QUERY & DISPLAY
-
-                                #region COURSE: CHOICE
-
                                 //LOOP MENU
                                 char menuC = CLogic.InputUntilMatched('A', 'R', 'S', 'B');
 
-                                #endregion COURSE: CHOICE
+                                #endregion COURSES: CHOICES
 
-                                #region COURSE: BRANCHES
+                                //Branches: Add, Remove, Assignments, Back
+                                #region COURSES: BRANCHES
 
-                                //BRANCH: ...
                                 switch (menuC)
                                 {
                                     case 'A':
@@ -182,9 +128,6 @@ namespace SchoolNew1
 
                                             //Adds new course
                                             CLogic.AddCourse(newCourse);
-
-                                            /*----User might be asked if they want to create an assignment,
-                                            add a student or teacher */
 
                                             break;
 
@@ -203,7 +146,7 @@ namespace SchoolNew1
                                             var searchedCourse = CLogic.QuerySearchCourse(search);
 
                                             //Removes searched course
-                                            CLogic.RemoveCourse(searchedCourse);
+                                            CLogic.RemoveCourse(searchedCourse.CourseId);
 
                                             break;
 
@@ -213,27 +156,117 @@ namespace SchoolNew1
                                         {
                                             #region Course: assignments
 
-                                            //There are assignments in database
-                                            if (CLogic.QueryAssignmentsExist())
+                                            //QUERY: gets assignments from database
+                                            List<Assignment> assignmentsList = new List<Assignment>(CLogic.QueryAssignments());
+
+                                            //No assignments were found in database
+                                            if (assignmentsList.Count < 1)
+                                            {
+                                                Console.WriteLine("There are no assignments in the database. Do you want to add one (Y/N)?\n");
+
+                                                char aNewChoice = CLogic.InputUntilMatched('Y', 'N');
+
+                                                switch (aNewChoice)
+                                                {
+                                                    case 'Y':
+                                                        {
+                                                            #region Assignment: add
+
+                                                            //NAME of new assignment
+                                                            Console.WriteLine("Give the new assignment a name:");
+                                                            string createName = Console.ReadLine();
+
+                                                            //DESCRIPTION of new assignment
+                                                            Console.WriteLine("\nGive the new assignment a description:");
+                                                            string createDesc = Console.ReadLine();
+
+                                                            //COURSE of new assignment
+                                                            Console.WriteLine("\nConnect the assignment to a course (ID/NAME):");
+                                                            
+                                                            //Take input until conversion to int is possible to eliminate typing errors
+                                                            string createFK = "";
+                                                            createFK = Console.ReadLine();
+
+                                                            //Finds a course based on searched ID
+                                                            var searchedCourse = CLogic.QuerySearchCourse(createFK);
+                                                            
+                                                            //Adds
+                                                            CLogic.AddAssignment(createName, createDesc, searchedCourse.CourseId);
+
+                                                            break;
+
+                                                            #endregion Assignment: add
+                                                        }
+                                                    case 'N':
+                                                        {
+                                                            break;
+                                                        }
+                                                }
+                                            }
+                                            else //Assignments were found in database
                                             {
 
-                                                #region Query & Display assignments
-                                                
-                                                foreach (Assignment a in assignmentsList.Where()
-                                                {
+                                                //Display the assignments in the list
+                                                CLogic.DisplayAssignments(assignmentsList);
 
+
+                                                #region Assignments: choice
+
+                                                Console.Write("\nWhat do you want to do?\n");
+                                                CLogic.WriteColor("Green", "A) Add assignment\n"
+                                                    + "R) Remove assignment\n"
+                                                    + "B) Back\n\n");
+
+                                                char aChoice = CLogic.InputUntilMatched('A', 'R', 'B');
+
+                                                #endregion Assignments: choice
+
+                                                #region Assignments: branches
+
+                                                switch (aChoice)
+                                                {
+                                                    case 'A':
+                                                        {
+                                                            #region Assignment: add
+
+                                                            //NAME of new assignment
+                                                            Console.WriteLine("Give the new assignment a name:");
+                                                            string createName = Console.ReadLine();
+
+                                                            //DESCRIPTION of new assignment
+                                                            Console.WriteLine("Give the new assignment a description:");
+                                                            string createDesc = Console.ReadLine();
+
+                                                            break;
+
+                                                            #endregion Assignment: add
+                                                        }
+                                                    case 'R':
+                                                        {
+                                                            #region Assignment: remove
+
+                                                            Console.WriteLine("Which assignment do you want to remove (ID/NAME)?");
+
+                                                            var search = Console.ReadLine();
+                                                            Console.Write("\n");
+
+                                                            //Searches for a course
+                                                            var searchedAssign = CLogic.QuerySearchAssignment(search);
+
+                                                            //Removes searched course
+                                                            CLogic.RemoveAssignment(searchedAssign.AssignmentId);
+
+                                                            break;
+
+                                                            #endregion Assignment: remove
+                                                        }
+                                                    case 'B':
+                                                        {
+                                                            break;
+                                                        }
                                                 }
 
-                                                //
-                                                Console.WriteLine($"{}");
-
-                                                #endregion Query & Display assignments
-
-                                                #region
-                                                #endregion
-                                            }
-                                            else //There are no assignments in database
-                                            {
+                                                #endregion Assignments: branches
 
                                             }
 
@@ -247,40 +280,40 @@ namespace SchoolNew1
                                         }
                                 }
 
-                                #endregion COURSE: BRANCHES
+                                #endregion COURSES: BRANCHES
                             }
                             break;
                         }
                     case 'P':
                         {
-                            #region PEOPLE: PROMPT
+                            #region PEOPLE: CHOICES
 
-                            CLogic.WriteColor("Green", "T) Teachers"
+                            CLogic.WriteColor("Green", "\nPEOPLE:\n");
+                            Console.WriteLine("T) Teachers"
                                 + "\nS) Students"
-                                + "B) Back");
-
-                            #endregion PEOPLE: PROMPT
-
-                            #region PEOPLE: CHOICE
+                                + "\nB) Back\n");
 
                             //Inputs until user gives either T, S or B
                             char menuP = CLogic.InputUntilMatched('T', 'S', 'B');
 
-                            #endregion PEOPLE: CHOICE
+                            #endregion PEOPLE: CHOICES
 
+                            //Branches: Teachers, Students, Back
                             #region PEOPLE: BRANCHES
 
-                            //Branches ...
                             switch (menuP)
                             {
                                 case 'T':
                                     {
-                                        //Checks if teachers exist in database ...
-                                        if (!(CLogic.QueryTeachersExist()))
+                                        //Gets teachers from database
+                                        var teachersList = new List<Teacher>(CLogic.QueryTeachers());
+
+                                        //Checks if teachers were found in database ...
+                                        if (teachersList.Count < 1)
                                         {
                                             #region NO TEACHERS FOUND. CREATE?
-                                            Console.WriteLine("There are no teachers yet. Do you want to add one(Y/N)?");
 
+                                            Console.WriteLine("There are no teachers in the database. Do you want to add one (Y/N)?");
                                             char choice = CLogic.InputUntilMatched('Y', 'N');
 
                                             #endregion NO TEACHERS FOUND. CREATE?
@@ -295,13 +328,13 @@ namespace SchoolNew1
 
                                                         //Prompts user to enter names of new teacher
                                                         Console.WriteLine("First name of the teacher to add:");
-                                                        string newTeacherFirst = Console.ReadLine();
+                                                        string newFirst = Console.ReadLine();
 
                                                         Console.WriteLine("Last name of the teacher to add:");
-                                                        string newTeacherLast = Console.ReadLine();
-
+                                                        string newLast = Console.ReadLine();
+                                                        
                                                         //Adds new teacher
-                                                        CLogic.AddTeacher(newTeacherFirst, newTeacherLast);
+                                                        CLogic.AddTeacher(newFirst, newLast);
 
                                                         break;
 
@@ -317,22 +350,15 @@ namespace SchoolNew1
                                         }
                                         else
                                         {
-                                            #region TEACHER: QUERY & DISPLAY
-
-                                            //QUERY: gets courses from database
-                                            List<Teacher> teachersList = new List<Teacher>(CLogic.QueryTeachers());
-
-                                            //DISPLAY: writes out name of all the courses, numbered by id
+                                            //DISPLAY: writes out name of all the teachers, numbered by id
                                             CLogic.DisplayTeachers(teachersList);
 
-                                            Console.WriteLine("What do you want to do?"
-                                                + "\nA) Add course"
-                                                + "\nR) Remove course"
-                                                + "\nB) Back");
-
-                                            #endregion TEACHER: QUERY & DISPLAY
-
                                             #region TEACHER: CHOICE
+
+                                            Console.WriteLine("What do you want to do?"
+                                                + "\nA) Add teacher"
+                                                + "\nR) Remove teacher"
+                                                + "\nB) Back");
 
                                             char choice = CLogic.InputUntilMatched('A', 'R', 'B');
 
@@ -340,7 +366,7 @@ namespace SchoolNew1
 
                                             #region TEACHER: BRANCHES
 
-                                            //BRANCH: ...
+                                            //BRANCHES: Add, Remove, Back
                                             switch (choice)
                                             {
                                                 case 'A':
@@ -390,12 +416,15 @@ namespace SchoolNew1
                                     }
                                 case 'S':
                                     {
+                                        //Gets teachers from database
+                                        var studentsList = new List<Student>(CLogic.QueryStudents());
+
                                         //Checks if students exist in database ...
-                                        if (!(CLogic.QueryStudentsExist()))
+                                        if (studentsList.Count < 1)
                                         {
                                             #region NO STUDENTS FOUND. CREATE?
-                                            Console.WriteLine("There are no students yet. Do you want to add one(Y/N)?");
 
+                                            Console.WriteLine("There are no students yet. Do you want to add one (Y/N)?");
                                             char choice = CLogic.InputUntilMatched('Y', 'N');
 
                                             #endregion NO STUDENTS FOUND. CREATE?
@@ -409,10 +438,10 @@ namespace SchoolNew1
                                                         #region Add new student
 
                                                         //Prompts user to enter names of new student
-                                                        Console.WriteLine("First name of the student to add:");
+                                                        Console.WriteLine("First name:");
                                                         string newStudentFirst = Console.ReadLine();
 
-                                                        Console.WriteLine("Last name of the student to add:");
+                                                        Console.WriteLine("Last name:");
                                                         string newStudentLast = Console.ReadLine();
 
                                                         //Adds new student
@@ -432,30 +461,27 @@ namespace SchoolNew1
                                         }
                                         else
                                         {
-                                            #region STUDENT: QUERY & DISPLAY
-
-                                            //QUERY: gets courses from database
-                                            List<Student> studentsList = new List<Student>(CLogic.QueryStudents());
-
+                                            #region STUDENTS: DISPLAY
+                                            
                                             //DISPLAY: writes out name of all the courses, numbered by id
                                             CLogic.DisplayStudents(studentsList);
+
+                                            #endregion STUDENTS: DISPLAY
+
+                                            #region STUDENTS: CHOICE
 
                                             Console.WriteLine("What do you want to do?"
                                                 + "\nA) Add course"
                                                 + "\nR) Remove course"
                                                 + "\nB) Back");
 
-                                            #endregion STUDENT: QUERY & DISPLAY
-
-                                            #region STUDENT: CHOICE
-
                                             char choice = CLogic.InputUntilMatched('A', 'R', 'B');
 
-                                            #endregion STUDENT: CHOICE
+                                            #endregion STUDENTS: CHOICE
 
                                             #region STUDENT: BRANCHES
 
-                                            //BRANCH: ...
+                                            //BRANCH: Add, Remove, Back
                                             switch (choice)
                                             {
                                                 case 'A':
@@ -480,7 +506,7 @@ namespace SchoolNew1
                                                     {
                                                         #region Remove student
 
-                                                        Console.WriteLine("Which student do you want to remove(ID / NAME)?");
+                                                        Console.WriteLine("Which student do you want to remove (ID / NAME)?");
 
                                                         //Searches for a student
                                                         var search = Console.ReadLine();
@@ -507,7 +533,6 @@ namespace SchoolNew1
                                     {
                                         break;
                                     }
-
                             }
 
                             #endregion PEOPLE: BRANCHES
@@ -516,16 +541,14 @@ namespace SchoolNew1
                         }
                     case 'Q':
                         {
-                            #region BRANCH: QUIT
+                            #region QUIT
 
                             mainLoop = false;
                             break;
 
-                            #endregion BRANCH: QUIT
+                            #endregion QUIT
                         }
                 }
-
-                #endregion MAIN MENU: BRANCHES
             }
         }
     }
